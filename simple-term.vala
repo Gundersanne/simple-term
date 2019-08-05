@@ -120,14 +120,14 @@ class TerminalWindow : Gtk.Window
         return color;
     }
 
-    private static string convert_uris(string[] uris)
+    private static char[] convert_uris(string[] uris)
     {
         for (var i = 0; i < uris.length; ++i) {
             var path = File.new_for_uri(uris[i]).get_path();
             if (path != null)
                 uris[i] = Shell.quote(path);
         }
-        return string.joinv(" ", uris);
+        return string.joinv(" ", uris).to_utf8();
     }
 
     private void update_geometry()
@@ -262,9 +262,9 @@ class TerminalWindow : Gtk.Window
         // this is the only way to get a usable target list
         Gdk.Atom[] targets = { selection_data.get_target() };
         if (Gtk.targets_include_text(targets)) {
-            terminal.feed_child(selection_data.get_text(), -1);
+            terminal.feed_child(selection_data.get_text().to_utf8());
         } else if (Gtk.targets_include_uri(targets)) {
-            terminal.feed_child(convert_uris(selection_data.get_uris()), -1);
+            terminal.feed_child(convert_uris(selection_data.get_uris()));
         }
         Gtk.drag_finish(context, true, false, time);
     }
